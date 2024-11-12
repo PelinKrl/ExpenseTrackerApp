@@ -94,16 +94,3 @@ class _ForgotPaState extends State<ForgotPasswordPage> {
 }
 
 
-//  InputDecoration(
-//                     enabledBorder: OutlineInputBorder(
-//                       borderSide: const BorderSide(color: Colors.white),
-//                       borderRadius: BorderRadius.circular(12),
-//                     ),
-//                     focusedBorder: OutlineInputBorder(
-//                       borderSide: const BorderSide(color: Colors.deepPurple),
-//                       borderRadius: BorderRadius.circular(12),
-//                     ),
-//                     hintText: 'Email',
-//                     fillColor: Colors.grey[200],
-//                     filled: true,
-//                   ),

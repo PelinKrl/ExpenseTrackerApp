@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:expensetracker/pages/custom_textfield.dart';
 import 'package:expensetracker/pages/forgot_password_page.dart';
-import 'package:google_sign_in/google_sign_in.dart'; // Add this import
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback showRegisterPage;
@@ -14,7 +14,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  //text controller
+  // Text controllers
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -24,29 +24,52 @@ class _LoginPageState extends State<LoginPage> {
   final String _textRegisterNowTittle = 'Register Now';
   final String _textRememberTittle = 'Not a Member?';
 
+  // Method to sign in with email and password
   Future signIn() async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-    );
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+    } on FirebaseAuthException catch (e) {
+      showErrorDialog(e.message ?? 'Failed to sign in');
+    }
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  // Method to sign in with Google
+  Future<void> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+      if (googleAuth != null) {
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
 
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
+        await FirebaseAuth.instance.signInWithCredential(credential);
+      }
+    } on FirebaseAuthException catch (e) {
+      showErrorDialog(e.message ?? 'Failed to sign in with Google');
+    }
+  }
+
+  // Show error dialog
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
     );
-
-    // Sign in to Firebase with the Google credentials
-    return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
   @override
@@ -59,9 +82,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 193, 181, 240),
-        body: SafeArea(
-            child: Center(
+      backgroundColor: const Color.fromARGB(255, 193, 181, 240),
+      body: SafeArea(
+        child: Center(
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -70,55 +93,47 @@ class _LoginPageState extends State<LoginPage> {
                   Icons.lock,
                   size: 100,
                 ),
-                const SizedBox(
-                  height: 35,
-                ),
+                const SizedBox(height: 35),
 
-                //Hello again!
+                // Title
                 Text(
                   _textTittle,
                   style: GoogleFonts.bebasNeue(
                     fontSize: 52,
-                    color: const Color.fromARGB(255, 51, 3, 97)
+                    color: const Color.fromARGB(255, 51, 3, 97),
                   ),
                 ),
-                const SizedBox(
-                  height: 5,
-                ),
+                const SizedBox(height: 5),
 
+                // Subtitle
                 Text(
                   _textSubTittle,
                   style: const TextStyle(fontSize: 20),
                 ),
+                const SizedBox(height: 10),
 
-                const SizedBox(
-                  height: 10,
-                ),
-
-                //email textfield
+                // Email text field
                 Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: TextField(
-                        controller: _emailController,
-                        decoration: customInputDecoration('Email'))),
-
-                const SizedBox(
-                  height: 10,
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: TextField(
+                    controller: _emailController,
+                    decoration: customInputDecoration('Email'),
+                  ),
                 ),
+                const SizedBox(height: 10),
 
-                //password textfield
+                // Password text field
                 Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: TextField(
-                        obscureText: true,
-                        controller: _passwordController,
-                        decoration: customInputDecoration('Password'))),
-
-                const SizedBox(
-                  height: 10,
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: TextField(
+                    obscureText: true,
+                    controller: _passwordController,
+                    decoration: customInputDecoration('Password'),
+                  ),
                 ),
+                const SizedBox(height: 10),
 
-                //Forgot Password
+                // Forgot Password
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
                   child: Row(
@@ -126,8 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) {
                             return const ForgotPasswordPage();
                           }));
                         },
@@ -138,16 +152,13 @@ class _LoginPageState extends State<LoginPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
+                const SizedBox(height: 10),
 
-                const SizedBox(
-                  height: 10,
-                ),
-
-                //sign in button
+                // Sign in button
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
                   child: GestureDetector(
@@ -171,12 +182,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
 
-                const SizedBox(
-                  height: 20,
-                ),
-
-                // "or" separator
+                // OR divider
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
                   child: Row(
@@ -192,7 +200,9 @@ class _LoginPageState extends State<LoginPage> {
                         child: Text(
                           "OR",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.black54),
+                            fontWeight: FontWeight.bold, 
+                            color: Colors.black54,
+                          ),
                         ),
                       ),
                       Expanded(
@@ -204,12 +214,9 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 20),
 
-                const SizedBox(
-                  height: 20,
-                ),
-
-                // Sign in with Google button with Google logo
+                // Sign in with Google button
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
                   child: GestureDetector(
@@ -224,8 +231,8 @@ class _LoginPageState extends State<LoginPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image.asset(
-                            'lib/images/google_logo.png', // Google logo path
-                            height: 24, // Adjust height as needed
+                            'lib/images/google_logo.png',
+                            height: 24,
                           ),
                           const SizedBox(width: 10),
                           const Text(
@@ -241,12 +248,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
 
-                const SizedBox(
-                  height: 20,
-                ),
-
-                //not a member ? register now
+                // Not a member? Register now
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -263,12 +267,14 @@ class _LoginPageState extends State<LoginPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ],
             ),
           ),
-        )));
+        ),
+      ),
+    );
   }
 }

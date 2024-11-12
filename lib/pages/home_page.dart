@@ -281,10 +281,12 @@ Align(
               IconButton(
                 icon: const Icon(Icons.logout, color: Colors.deepPurple),
                 onPressed: () {
-                  FirebaseAuth.instance.signOut();
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => AuthPage()),
-                  );
+                    FirebaseAuth.instance.signOut().then((_) {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => AuthPage()),
+      (route) => false,
+    );
+  });
                 },
               ),
             ],

@@ -16,7 +16,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmpasswordController = TextEditingController();
 
-  final String _textTittle = 'Welcome to Expense Tracker';
+  final String _textTittle = 'Welcome!';
 
   final String _textSubTittle = 'Register below with your details!';
 
@@ -49,7 +49,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 227, 227, 227),
+        backgroundColor: const Color.fromARGB(255, 201, 170, 250),
         body: SafeArea(
             child: Center(
           child: SingleChildScrollView(
@@ -57,7 +57,7 @@ class _RegisterPageState extends State<RegisterPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(
-                  Icons.money,
+                  Icons.account_balance_wallet,
                   size: 100,
                 ),
                 const SizedBox(
