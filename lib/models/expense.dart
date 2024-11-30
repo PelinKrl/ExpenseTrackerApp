@@ -1,32 +1,36 @@
-//import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Expense {
-  final String id;
-  final String name;
-  final double amount;
-  final DateTime date;
+  String? id; // Firebase document ID
+  String userId; // User ID associated with this expense
+  String name;
+  double amount;
+  DateTime date;
 
   Expense({
-    required this.id,
+    this.id,
+    required this.userId,
     required this.name,
     required this.amount,
     required this.date,
   });
 
-  Map<String, dynamic> toJson() {
+  // Convert Expense to a map for Firebase
+  Map<String, dynamic> toMap() {
     return {
+      'userId': userId, // Include userId in the map
       'name': name,
       'amount': amount,
-      'date': date.millisecondsSinceEpoch,
+      'date': date.toIso8601String(),
     };
   }
 
-  static Expense fromJson(Map<String, dynamic> json, String id) {
+  // Create Expense from a map (Firebase data)
+  factory Expense.fromMap(Map<String, dynamic> map, String id) {
     return Expense(
       id: id,
-      name: json['name'],
-      amount: json['amount'],
-      date: DateTime.fromMillisecondsSinceEpoch(json['date']),
+      userId: map['userId'] as String, // Retrieve userId from the map
+      name: map['name'] as String,
+      amount: (map['amount'] as num).toDouble(),
+      date: DateTime.parse(map['date']),
     );
   }
 }
